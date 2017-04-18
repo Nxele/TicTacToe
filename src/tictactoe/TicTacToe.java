@@ -22,8 +22,11 @@ public class TicTacToe {
      */
     
     private String [][]ticTac=new String [3][3];
-    private int countMoves,count,winnerX,winnerO;
-    private String playerX,playerO;
+    private int countMoves,count,winnerX,winnerO,row,col;
+    private String playerX,playerO,winner;
+    private boolean foundWinner;
+    private final String ticX ="XXX";
+    private final String ticO ="OOO";
     
     //Game gameForm = new Game();
     
@@ -33,8 +36,10 @@ public class TicTacToe {
         this.count = 1;
         this.playerO = "O";
         this.playerX = "X";
+        this.winner = "";
         this.winnerO = 0;
         this.winnerX = 0;
+        this.foundWinner = false;
         onLoad();
     }
     public void validatePlayer(JButton button,int btnNumber,JLabel Moveslabel){
@@ -55,13 +60,15 @@ public class TicTacToe {
     public void playGame(JButton btn,String player,int number)
     {
                 
-        if(player.equals("X")){
-           btn.setText("X");
-            insertXO("X",number);
+        if(player.equals(playerX)){
+           btn.setText(playerX);
+            insertXO(playerX,number);
+            lbTurn.setText(playerO);
         }
-        if(player.equals("O")){
-            btn.setText("O");
-            insertXO("O",number);
+        if(player.equals(playerO)){
+            btn.setText(playerO);
+            insertXO(playerO,number);
+            lbTurn.setText(playerX);
         }
         countMoves++;
     }
@@ -79,42 +86,93 @@ public class TicTacToe {
      
         if(countMoves >= 5 && ! symbol.equals("H"))
         {
-            winner();
+            winneRowWinner();
         }
     }
-    //this method check for the winner
-    public void winner()
-    {
-        //checking the winner in rows
+    //checking the winner in rows
+    
+    public void winneRowWinner(){
+        this.winner = "";
         for(int index = 0;index < 3; index++)
         { 
             for(int in = 0;in < 3; in++)
             {      
                 if(ticTac[index][in].equals(ticTac[index][1]) && ticTac[index][in].equals(ticTac[index][2]) && ticTac[index][in] !="H")
                 {
-                    JOptionPane.showMessageDialog(null,"Player "+ticTac[index][in]+" Won The Table");
-                    increamentWinner(ticTac[index][in]);
+                    winner = winner+ticTac[index][in]+ticTac[index][1]+ticTac[index][2];
                     break;
                 }
             }  
         }
-        //checking the winner in colums
-        
-        //checking the winner diogninal
+        if(winner.equals(ticO) || winner.equals(ticX)){
+            System.out.print(winner);
+            foundWinner = true;
+            increamentWinner(winner);
+        }
+        else{winnnerLeftDiogninal();}
+    }
+    public void winnnerLeftDiogninal(){
+        this.winner="";
+        this.row = 0;
+        this.col = 0;
+        for(int i = 0;i < ticTac.length;i++){
+            winner = winner+ticTac[row][col];
+            row++;col++;
+        }
+        if(winner.equals(ticO) || winner.equals(ticX)){
+            foundWinner = true;
+            increamentWinner(winner);
+        }
+        else{winnerRightDiogninal();}
+    }
+    public void winnerRightDiogninal(){
+        this.winner="";
+        this.row = 0;
+        this.col = 2;
+        for(int i =0;i < ticTac.length;i++){
+            winner = winner+ticTac[row][col];
+            row++;col--;
+        }
+        if(winner.equals(ticO) || winner.equals(ticX)){
+            foundWinner = true;
+            increamentWinner(winner);
+        }
+        else{winnerColumn();}
+    }
+    //this method check for the winner   
+    public void winnerColumn()
+    {
+        this.winner="";
+        for(int i =0;i < ticTac.length;i++){
+            for(int x =0;x < ticTac.length;x++){
+                if(ticTac[x][i].equals(ticTac[1][i]) && ticTac[x][i].equals(ticTac[2][i]) && ticTac[x][i] !="H"){
+                    winner=winner+ticTac[x][i]+ticTac[1][i]+ticTac[2][i];
+                    break;
+                }
+            }
+        }
+        if(winner.equals(ticO) || winner.equals(ticX)){
+            foundWinner = true;
+            increamentWinner(winner);
+        }
+        else{}
     }
     public void increamentWinner(String winner)
     {
-        if(winner.equals("X")){
+        JOptionPane.showMessageDialog(null,"Player "+winner.charAt(0)+" Won The Table");
+        
+        if(winner.charAt(0)=='X'){
             winnerX++;
             lbScoreX.setText(Integer.toString(winnerX));
         }
-        if(winner.equals("O")){
+        if(winner.charAt(0)=='O'){
             winnerO++;
             lbScoreO.setText(Integer.toString(winnerO));
         }
+        resetGame();
         onLoad();
     }
-    public void resetGame(JButton btn1,JButton btn2,JButton btn3,JButton btn4,JButton btn5,JButton btn6,JButton btn7,JButton btn8,JButton btn9){
+    public void resetGame(){
         btn1.setText("");
         btn2.setText("");
         btn3.setText("");
@@ -125,11 +183,11 @@ public class TicTacToe {
         btn8.setText("");
         btn9.setText("");
         
-        for(int index = 1;index <= 9;index++){
-            insertXO("H",index);
-        }
-        countMoves = 1;
-        displayArrays();
+        onLoad();
+        this.countMoves = 0;
+        this.winner="";
+        this.foundWinner=false;
+        //displayArrays();
     }
     public void displayArrays(){
         for(int index =0;index < 3; index++)
